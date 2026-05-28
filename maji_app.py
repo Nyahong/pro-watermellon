@@ -339,12 +339,13 @@ with col2:
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         ">
             <div style="font-size:13px; color:#aaa; margin-bottom:4px;">{emoji} 서울 현재 날씨</div>
-            <div style="font-size:36px; font-weight:700; color:#e0e0ff;">{weather['temp']}°C</div>
-            <div style="font-size:13px; color:#ccc; margin-top:6px;">
-                {weather['desc']} &nbsp;|&nbsp;
-                체감 {weather['feels_like']}°C &nbsp;|&nbsp;
-                습도 {weather['humidity']}% &nbsp;|&nbsp;
-                바람 {weather['wind']}km/h
+            <div style="font-size:36px; font-weight:700; color:#e0e0ff;">{weather['temp']}°C
+                <span style="font-size:16px; font-weight:400; color:#ccc;">{weather['desc']}</span>
+            </div>
+            <div style="font-size:13px; color:#ccc; margin-top:8px; display:flex; gap:16px;">
+                <span>🌡️ 체감 {weather['feels_like']}°C</span>
+                <span>💧 습도 {weather['humidity']}%</span>
+                <span>💨 바람 {weather['wind']}km/h</span>
             </div>
         </div>
         """, height=150)
