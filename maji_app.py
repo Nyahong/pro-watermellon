@@ -14,7 +14,7 @@ MODEL       = "10ai0377-gpt-4o-mini"
 client = openai.AzureOpenAI(
     api_key=API_KEY,
     azure_endpoint="https://10ai037-openai.openai.azure.com/",
-    api_version="2024-07-18"
+    api_version="2024-08-01-preview"
 )
 
 SYSTEM_PROMPT = """
