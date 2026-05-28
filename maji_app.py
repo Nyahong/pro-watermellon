@@ -1,8 +1,10 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import openai
 import json
 import time
 import base64
+import requests
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
@@ -23,6 +25,36 @@ client = openai.AzureOpenAI(
     azure_endpoint="https://10ai037-openai.openai.azure.com/",
     api_version="2024-05-01-preview"
 )
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 실시간 날씨 (wttr.in, API 키 불필요)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@st.cache_data(ttl=600)  # 10분마다 갱신
+def fetch_weather(city="Seoul"):
+    try:
+        res  = requests.get(f"https://wttr.in/{city}?format=j1", timeout=5)
+        data = res.json()
+        cur  = data['current_condition'][0]
+        return {
+            "temp":       cur['temp_C'],
+            "feels_like": cur['FeelsLikeC'],
+            "humidity":   cur['humidity'],
+            "wind":       cur['windspeedKmph'],
+            "desc":       cur['weatherDesc'][0]['value'],
+        }
+    except:
+        return None
+
+def weather_emoji(desc):
+    d = desc.lower()
+    if any(w in d for w in ["sunny", "clear"]):        return "☀️"
+    if any(w in d for w in ["partly", "cloudy"]):      return "⛅"
+    if "overcast" in d:                                 return "☁️"
+    if any(w in d for w in ["rain", "drizzle"]):       return "🌧️"
+    if "snow" in d:                                     return "❄️"
+    if any(w in d for w in ["thunder", "storm"]):      return "⛈️"
+    if any(w in d for w in ["fog", "mist"]):           return "🌫️"
+    return "🌡️"
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # [1] 함수 정의 (새 기능 추가 시 여기에 작성)
@@ -256,6 +288,70 @@ def run_assistant(user_message, image_b64=None, image_mime=None):
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 st.title("🍉 수박 전문가 AI")
 st.caption("수박 질문은 물론, 날씨·시간·계산까지!")
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 실시간 시계 + 날씨 대시보드
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+weather = fetch_weather("Seoul")
+emoji   = weather_emoji(weather['desc']) if weather else "❓"
+
+col1, col2 = st.columns(2)
+
+# 실시간 시계 (JavaScript)
+with col1:
+    components.html("""
+    <div style="
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+        border-radius: 16px;
+        padding: 20px 24px;
+        color: white;
+        font-family: 'Segoe UI', sans-serif;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    ">
+        <div style="font-size:13px; color:#aaa; margin-bottom:4px;">🕐 서울 현재 시각</div>
+        <div id="clock" style="font-size:36px; font-weight:700; letter-spacing:2px; color:#e0e0ff;"></div>
+        <div id="date"  style="font-size:14px; color:#aaa; margin-top:6px;"></div>
+    </div>
+    <script>
+        function update() {
+            const now = new Date();
+            const options = { timeZone: 'Asia/Seoul' };
+            const timeStr = now.toLocaleTimeString('ko-KR', {...options, hour:'2-digit', minute:'2-digit', second:'2-digit'});
+            const dateStr = now.toLocaleDateString('ko-KR', {...options, year:'numeric', month:'long', day:'numeric', weekday:'long'});
+            document.getElementById('clock').innerText = timeStr;
+            document.getElementById('date').innerText  = dateStr;
+        }
+        update();
+        setInterval(update, 1000);
+    </script>
+    """, height=120)
+
+# 날씨 카드
+with col2:
+    if weather:
+        components.html(f"""
+        <div style="
+            background: linear-gradient(135deg, #0f3460, #533483);
+            border-radius: 16px;
+            padding: 20px 24px;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        ">
+            <div style="font-size:13px; color:#aaa; margin-bottom:4px;">{emoji} 서울 현재 날씨</div>
+            <div style="font-size:36px; font-weight:700; color:#e0e0ff;">{weather['temp']}°C</div>
+            <div style="font-size:13px; color:#ccc; margin-top:6px;">
+                {weather['desc']} &nbsp;|&nbsp;
+                체감 {weather['feels_like']}°C &nbsp;|&nbsp;
+                습도 {weather['humidity']}% &nbsp;|&nbsp;
+                바람 {weather['wind']}km/h
+            </div>
+        </div>
+        """, height=120)
+    else:
+        st.warning("날씨 정보를 불러올 수 없습니다.")
+
+st.divider()
 
 with st.sidebar:
     st.header("🍉 수박 AI 메뉴")
