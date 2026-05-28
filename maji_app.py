@@ -226,7 +226,9 @@ if "thread_id" not in st.session_state:
     st.session_state.thread_id = thread.id
 
 if "messages" not in st.session_state:
-    st.session_state.messages = []
+    st.session_state.messages = [
+        {"role": "assistant", "content": "안녕하세요? 저는 수박박사입니다. 🍉\n수박에 관한 모든 것은 물론, 날씨·시간·계산까지 뭐든지 물어보세요!"}
+    ]
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # Assistant 실행 함수
