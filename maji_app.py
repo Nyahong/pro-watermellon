@@ -230,6 +230,8 @@ if "messages" not in st.session_state:
     st.session_state.messages = [
         {"role": "assistant", "content": "안녕하세요? 저는 수박박사입니다. 🍉\n수박에 관한 모든 것은 물론, 날씨·시간·계산까지 뭐든지 물어보세요!"}
     ]
+if "mystery_count" not in st.session_state:
+    st.session_state.mystery_count = 0
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # Assistant 실행 함수
@@ -298,12 +300,16 @@ st.markdown("""
     /* 사이드바 */
     [data-testid="stSidebar"] { background-color: #222222 !important; }
 
-    /* 채팅 입력창 */
+    /* 채팅 입력창 전체 컨테이너 */
+    [data-testid="stChatInputContainer"] {
+        background-color: #1a3a1c !important;
+        border-radius: 14px !important;
+    }
+    /* 채팅 입력창 텍스트 영역 */
     [data-testid="stChatInput"] textarea {
         background-color: #1a3a1c !important;
-        color: #f0fff0 !important;
-        border: 1px solid #4caf50 !important;
-        border-radius: 12px !important;
+        color: #c8f7c5 !important;
+        border: none !important;
     }
 
     /* 버튼 */
@@ -419,6 +425,7 @@ with st.sidebar:
         <div style="font-size:18px; font-weight:700; color:#ff6b6b;">수박 AI 메뉴</div>
     </div>
     """, unsafe_allow_html=True)
+    user_name = st.text_input("👤 이름을 알려주세요", placeholder="홍길동", label_visibility="visible")
     st.markdown("""
     **물어볼 수 있는 것들:**
     - 🍉 수박 고르는 법 / 품종 / 효능
@@ -518,17 +525,31 @@ with st.sidebar:
     with btn_col2:
         if st.button("🍉 수박 미스터리"):
             import random
-            mysteries = [
-                "🍉 수박의 90%는 물입니다... 그럼 수박을 먹으면 물을 마시는 건가요?",
-                "🍉 일본에는 네모난 수박이 존재합니다. 맛은 같지만 가격은 10배!",
-                "🍉 수박씨를 삼키면 배 속에서 자랄까요? (정답: No! 그냥 소화됩니다 😅)",
-                "🍉 수박은 과일일까요 채소일까요? 정답은... 둘 다입니다!",
-                "🍉 고대 이집트 파라오 무덤에서 수박 씨앗이 발견됐습니다. 3500년 된 수박!",
-                "🍉 세계에서 가장 무거운 수박은 159kg! 어른 두 명 몸무게입니다.",
-                "🍉 수박 껍질로 깍두기를 만들 수 있습니다. 버리지 마세요!",
-            ]
-            mystery = random.choice(mysteries)
-            st.session_state.messages.append({"role": "assistant", "content": mystery})
+            st.session_state.mystery_count += 1
+            name = user_name if user_name else "당신"
+
+            if st.session_state.mystery_count >= 30:
+                ghost_msgs = [
+                    f"👻 {name}씨... 지금 당신 뒤에 수박귀신이 있어요...",
+                    f"🍉👻 {name}씨, 뒤를 돌아보지 마세요... 수박귀신이 지켜보고 있습니다...",
+                    f"😱 {name}씨!! 수박귀신이 30번째 클릭을 기다리고 있었어요!!",
+                ]
+                msg = random.choice(ghost_msgs)
+                st.session_state.mystery_count = 0  # 리셋
+            else:
+                mysteries = [
+                    "🍉 수박의 90%는 물입니다... 그럼 수박을 먹으면 물을 마시는 건가요?",
+                    "🍉 일본에는 네모난 수박이 존재합니다. 맛은 같지만 가격은 10배!",
+                    "🍉 수박씨를 삼키면 배 속에서 자랄까요? (정답: No! 그냥 소화됩니다 😅)",
+                    "🍉 수박은 과일일까요 채소일까요? 정답은... 둘 다입니다!",
+                    "🍉 고대 이집트 파라오 무덤에서 수박 씨앗이 발견됐습니다. 3500년 된 수박!",
+                    "🍉 세계에서 가장 무거운 수박은 159kg! 어른 두 명 몸무게입니다.",
+                    "🍉 수박 껍질로 깍두기를 만들 수 있습니다. 버리지 마세요!",
+                    f"🍉 {name}씨, 혹시 수박을 냉동해서 먹어본 적 있나요? 셔벗처럼 맛있어요!",
+                ]
+                msg = random.choice(mysteries)
+
+            st.session_state.messages.append({"role": "assistant", "content": msg})
             st.rerun()
 
 # 대화 기록 출력
