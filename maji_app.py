@@ -1,4 +1,5 @@
 import streamlit as st
+st.set_page_config(page_title="수박 전문가 AI", page_icon="🍉")
 import streamlit.components.v1 as components
 import openai
 import json
@@ -308,7 +309,7 @@ with col1:
         font-family: 'Segoe UI', sans-serif;
         box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     ">
-        <div style="font-size:13px; color:#aaa; margin-bottom:4px;">🕐 서울 현재 시각</div>
+        <div style="font-size:13px; color:#aaa; margin-bottom:4px;">🍉 서울 현재 시각</div>
         <div id="clock" style="font-size:36px; font-weight:700; letter-spacing:2px; color:#e0e0ff;"></div>
         <div id="date"  style="font-size:14px; color:#aaa; margin-top:6px;"></div>
     </div>
