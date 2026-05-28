@@ -292,10 +292,10 @@ def run_assistant(user_message, image_b64=None, image_mime=None):
 st.markdown("""
 <style>
     /* 전체 배경 */
-    .stApp { background-color: #0d1f0f; }
+    .stApp { background-color: #1a1a1a; }
 
     /* 사이드바 */
-    [data-testid="stSidebar"] { background-color: #122714 !important; }
+    [data-testid="stSidebar"] { background-color: #222222 !important; }
 
     /* 채팅 입력창 */
     [data-testid="stChatInput"] textarea {
