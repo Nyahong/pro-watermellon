@@ -342,7 +342,7 @@ components.html("""
 ">
     <div style="font-size: 52px; line-height:1;">🍉</div>
     <div>
-        <div style="font-size:24px; font-weight:700; color:#4a4a4a;">수박 전문가 AI</div>
+        <div style="font-size:20px; font-weight:700; color:#4a4a4a;">어서오세요! 수박 박사의 이것저것 상담소입니다.</div>
         <div style="font-size:13px; color:#888; margin-top:3px;">수박 질문은 물론, 날씨 · 시간 · 계산까지!</div>
     </div>
 </div>
@@ -428,10 +428,11 @@ with st.sidebar:
     """)
 
     st.divider()
-    st.header("📎 파일 & 이미지 업로드")
+    st.markdown("**📎 파일 & 이미지 업로드**")
     uploaded_file = st.file_uploader(
         "파일을 업로드하면 분석해드려요",
-        type=["txt", "csv", "png", "jpg", "jpeg", "webp", "gif"]
+        type=["txt", "csv", "png", "jpg", "jpeg", "webp", "gif"],
+        label_visibility="collapsed"
     )
     file_content = ""
     image_b64    = None
@@ -465,15 +466,13 @@ with st.sidebar:
             st.session_state.messages.append({"role": "assistant", "content": answer})
             st.rerun()
 
-    st.divider()
     # ── 주식 차트 ──────────────────────────────────
     st.divider()
     st.markdown("**📈 주요 주식 현황**")
     try:
-        import yfinance as yf
         @st.cache_data(ttl=300)
         def fetch_stocks():
-            stocks = {"KOSPI": "^KS11", "삼성": "005930.KS", "AAPL": "AAPL", "TSLA": "TSLA"}
+            stocks = {"KOSPI": "^KS11", "Samsung": "005930.KS", "AAPL": "AAPL", "TSLA": "TSLA"}
             result = {}
             for name, ticker in stocks.items():
                 try:
@@ -495,8 +494,8 @@ with st.sidebar:
             ax.axhline(0, color='#555', linewidth=0.8, linestyle='--')
             ax.legend(fontsize=7, facecolor='#2a2a2a', labelcolor='white', loc='upper left')
             ax.tick_params(colors='#aaa', labelsize=7)
-            ax.set_ylabel('등락률(%)', color='#aaa', fontsize=7)
-            ax.set_xlabel('최근 1개월', color='#aaa', fontsize=7)
+            ax.set_ylabel('Return(%)', color='#aaa', fontsize=7)
+            ax.set_xlabel('Recent 1M', color='#aaa', fontsize=7)
             for spine in ax.spines.values():
                 spine.set_edgecolor('#444')
             plt.tight_layout()
@@ -507,12 +506,30 @@ with st.sidebar:
     except Exception as e:
         st.caption("주식 데이터 불러오기 실패")
 
+    # ── 버튼 ──────────────────────────────────────
     st.divider()
-    if st.button("대화 초기화"):
-        thread = client.beta.threads.create()
-        st.session_state.thread_id = thread.id
-        st.session_state.messages  = []
-        st.rerun()
+    btn_col1, btn_col2 = st.columns(2)
+    with btn_col1:
+        if st.button("🔄 대화 초기화"):
+            thread = client.beta.threads.create()
+            st.session_state.thread_id = thread.id
+            st.session_state.messages  = []
+            st.rerun()
+    with btn_col2:
+        if st.button("🍉 수박 미스터리"):
+            import random
+            mysteries = [
+                "🍉 수박의 90%는 물입니다... 그럼 수박을 먹으면 물을 마시는 건가요?",
+                "🍉 일본에는 네모난 수박이 존재합니다. 맛은 같지만 가격은 10배!",
+                "🍉 수박씨를 삼키면 배 속에서 자랄까요? (정답: No! 그냥 소화됩니다 😅)",
+                "🍉 수박은 과일일까요 채소일까요? 정답은... 둘 다입니다!",
+                "🍉 고대 이집트 파라오 무덤에서 수박 씨앗이 발견됐습니다. 3500년 된 수박!",
+                "🍉 세계에서 가장 무거운 수박은 159kg! 어른 두 명 몸무게입니다.",
+                "🍉 수박 껍질로 깍두기를 만들 수 있습니다. 버리지 마세요!",
+            ]
+            mystery = random.choice(mysteries)
+            st.session_state.messages.append({"role": "assistant", "content": mystery})
+            st.rerun()
 
 # 대화 기록 출력
 for msg in st.session_state.messages:
