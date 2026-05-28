@@ -292,35 +292,32 @@ def run_assistant(user_message, image_b64=None, image_mime=None):
 st.markdown("""
 <style>
     /* 전체 배경 */
-    .stApp { background-color: #0d1f0f; }
+    .stApp { background-color: #f9fdf9; }
 
     /* 사이드바 */
-    [data-testid="stSidebar"] { background-color: #122714 !important; }
+    [data-testid="stSidebar"] { background-color: #f0f7f0 !important; }
 
     /* 채팅 입력창 */
     [data-testid="stChatInput"] textarea {
-        background-color: #1a3a1c !important;
-        color: #f0fff0 !important;
-        border: 1px solid #4caf50 !important;
+        border: 1.5px solid #c8e6c9 !important;
         border-radius: 12px !important;
     }
 
     /* 버튼 */
     .stButton > button {
-        background: linear-gradient(135deg, #2d6a2d, #1a472a) !important;
-        color: white !important;
-        border: none !important;
+        background-color: #e8f5e9 !important;
+        color: #388e3c !important;
+        border: 1px solid #c8e6c9 !important;
         border-radius: 10px !important;
     }
     .stButton > button:hover {
-        background: linear-gradient(135deg, #e63946, #c1121f) !important;
+        background-color: #fce4ec !important;
+        color: #c62828 !important;
+        border-color: #f8bbd0 !important;
     }
 
-    /* 제목 */
-    h1 { color: #ff6b6b !important; }
-
     /* 구분선 */
-    hr { border-color: #2d6a2d !important; }
+    hr { border-color: #e0f0e0 !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -329,23 +326,22 @@ st.markdown("""
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 components.html("""
 <div style="
-    background: linear-gradient(135deg, #1a472a, #e63946);
-    border-radius: 20px;
-    padding: 24px 32px;
-    margin-bottom: 16px;
+    background: linear-gradient(135deg, #e8f5e9, #fce4ec);
+    border-radius: 16px;
+    padding: 20px 28px;
+    margin-bottom: 8px;
     display: flex;
     align-items: center;
-    gap: 20px;
-    box-shadow: 0 6px 24px rgba(230,57,70,0.3);
+    gap: 16px;
+    border: 1px solid #f0d8df;
 ">
-    <div style="font-size: 64px; line-height:1;">🍉</div>
+    <div style="font-size: 52px; line-height:1;">🍉</div>
     <div>
-        <div style="font-size:28px; font-weight:800; color:white; letter-spacing:1px;">수박 전문가 AI</div>
-        <div style="font-size:14px; color:#c8f7c5; margin-top:4px;">수박 질문은 물론, 날씨 · 시간 · 계산까지!</div>
+        <div style="font-size:24px; font-weight:700; color:#4a4a4a;">수박 전문가 AI</div>
+        <div style="font-size:13px; color:#888; margin-top:3px;">수박 질문은 물론, 날씨 · 시간 · 계산까지!</div>
     </div>
-    <div style="margin-left:auto; font-size:40px; opacity:0.3;">🍉🍉🍉</div>
 </div>
-""", height=120)
+""", height=105)
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # 실시간 시계 + 날씨 대시보드
@@ -358,17 +354,15 @@ col1, col2 = st.columns(2)
 with col1:
     components.html("""
     <div style="
-        background: linear-gradient(135deg, #1a472a, #2d6a2d);
+        background: #e8f5e9;
         border-radius: 16px;
         padding: 20px 24px;
-        color: white;
         font-family: 'Segoe UI', sans-serif;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-        border: 1px solid #4caf50;
+        border: 1px solid #c8e6c9;
     ">
-        <div style="font-size:13px; color:#a5d6a7; margin-bottom:4px;">🍉 서울 현재 시각</div>
-        <div id="clock" style="font-size:36px; font-weight:700; letter-spacing:2px; color:#ffffff;"></div>
-        <div id="date"  style="font-size:13px; color:#a5d6a7; margin-top:6px;"></div>
+        <div style="font-size:13px; color:#888; margin-bottom:4px;">🍉 서울 현재 시각</div>
+        <div id="clock" style="font-size:36px; font-weight:700; letter-spacing:1px; color:#2e7d32;"></div>
+        <div id="date"  style="font-size:13px; color:#888; margin-top:6px;"></div>
     </div>
     <script>
         function update() {
@@ -388,19 +382,17 @@ with col2:
     if weather:
         components.html(f"""
         <div style="
-            background: linear-gradient(135deg, #7b1a1a, #e63946);
+            background: #fce4ec;
             border-radius: 16px;
             padding: 20px 24px;
-            color: white;
             font-family: 'Segoe UI', sans-serif;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-            border: 1px solid #ff6b6b;
+            border: 1px solid #f8bbd0;
         ">
-            <div style="font-size:13px; color:#ffcdd2; margin-bottom:4px;">{emoji} 서울 현재 날씨</div>
-            <div style="font-size:36px; font-weight:700; color:#ffffff;">{weather['temp']}°C
-                <span style="font-size:16px; font-weight:400; color:#ffcdd2;">{weather['desc']}</span>
+            <div style="font-size:13px; color:#888; margin-bottom:4px;">{emoji} 서울 현재 날씨</div>
+            <div style="font-size:36px; font-weight:700; color:#c62828;">{weather['temp']}°C
+                <span style="font-size:16px; font-weight:400; color:#888;">{weather['desc']}</span>
             </div>
-            <div style="font-size:13px; color:#ffcdd2; margin-top:8px; display:flex; gap:16px;">
+            <div style="font-size:13px; color:#999; margin-top:8px; display:flex; gap:16px;">
                 <span>🌡️ 체감 {weather['feels_like']}°C</span>
                 <span>💧 습도 {weather['humidity']}%</span>
                 <span>💨 바람 {weather['wind']}km/h</span>
@@ -414,9 +406,9 @@ st.divider()
 
 with st.sidebar:
     st.markdown("""
-    <div style="text-align:center; padding: 10px 0 16px;">
-        <div style="font-size:48px;">🍉</div>
-        <div style="font-size:18px; font-weight:700; color:#ff6b6b;">수박 AI 메뉴</div>
+    <div style="text-align:center; padding: 10px 0 12px;">
+        <div style="font-size:36px;">🍉</div>
+        <div style="font-size:16px; font-weight:600; color:#555;">수박 AI 메뉴</div>
     </div>
     """, unsafe_allow_html=True)
     st.markdown("""
