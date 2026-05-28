@@ -6,6 +6,7 @@ import json
 import time
 import base64
 import requests
+import yfinance as yf
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
@@ -336,7 +337,8 @@ components.html("""
     display: flex;
     align-items: center;
     gap: 16px;
-    border: 1px solid #f0d8df;
+    border: 2px solid #f48fb1;
+    box-shadow: 0 2px 12px rgba(244,143,177,0.2);
 ">
     <div style="font-size: 52px; line-height:1;">🍉</div>
     <div>
@@ -357,17 +359,16 @@ col1, col2 = st.columns(2)
 with col1:
     components.html("""
     <div style="
-        background: linear-gradient(135deg, #1a472a, #2d6a2d);
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
         border-radius: 16px;
         padding: 20px 24px;
         color: white;
         font-family: 'Segoe UI', sans-serif;
         box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-        border: 1px solid #4caf50;
     ">
-        <div style="font-size:13px; color:#a5d6a7; margin-bottom:4px;">🍉 서울 현재 시각</div>
-        <div id="clock" style="font-size:36px; font-weight:700; letter-spacing:2px; color:#ffffff;"></div>
-        <div id="date"  style="font-size:13px; color:#a5d6a7; margin-top:6px;"></div>
+        <div style="font-size:13px; color:#aaa; margin-bottom:4px;">🍉 서울 현재 시각</div>
+        <div id="clock" style="font-size:36px; font-weight:700; letter-spacing:2px; color:#e0e0ff;"></div>
+        <div id="date"  style="font-size:13px; color:#aaa; margin-top:6px;"></div>
     </div>
     <script>
         function update() {
@@ -393,13 +394,12 @@ with col2:
             color: white;
             font-family: 'Segoe UI', sans-serif;
             box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-            border: 1px solid #7e57c2;
         ">
-            <div style="font-size:13px; color:#ce93d8; margin-bottom:4px;">{emoji} 서울 현재 날씨</div>
-            <div style="font-size:36px; font-weight:700; color:#ffffff;">{weather['temp']}°C
-                <span style="font-size:16px; font-weight:400; color:#ce93d8;">{weather['desc']}</span>
+            <div style="font-size:13px; color:#aaa; margin-bottom:4px;">{emoji} 서울 현재 날씨</div>
+            <div style="font-size:36px; font-weight:700; color:#e0e0ff;">{weather['temp']}°C
+                <span style="font-size:16px; font-weight:400; color:#aaa;">{weather['desc']}</span>
             </div>
-            <div style="font-size:13px; color:#ce93d8; margin-top:8px; display:flex; gap:16px;">
+            <div style="font-size:13px; color:#aaa; margin-top:8px; display:flex; gap:16px;">
                 <span>🌡️ 체감 {weather['feels_like']}°C</span>
                 <span>💧 습도 {weather['humidity']}%</span>
                 <span>💨 바람 {weather['wind']}km/h</span>
@@ -464,6 +464,48 @@ with st.sidebar:
             st.session_state.messages.append({"role": "user",      "content": "🖼️ 이미지 분석 요청"})
             st.session_state.messages.append({"role": "assistant", "content": answer})
             st.rerun()
+
+    st.divider()
+    # ── 주식 차트 ──────────────────────────────────
+    st.divider()
+    st.markdown("**📈 주요 주식 현황**")
+    try:
+        import yfinance as yf
+        @st.cache_data(ttl=300)
+        def fetch_stocks():
+            stocks = {"KOSPI": "^KS11", "삼성": "005930.KS", "AAPL": "AAPL", "TSLA": "TSLA"}
+            result = {}
+            for name, ticker in stocks.items():
+                try:
+                    hist = yf.Ticker(ticker).history(period="1mo")['Close']
+                    result[name] = hist
+                except:
+                    pass
+            return result
+
+        stock_data = fetch_stocks()
+        if stock_data:
+            fig, ax = plt.subplots(figsize=(3.5, 2.5))
+            fig.patch.set_facecolor('#222222')
+            ax.set_facecolor('#2a2a2a')
+            colors = ['#81c784', '#64b5f6', '#ffb74d', '#f06292']
+            for (name, series), color in zip(stock_data.items(), colors):
+                norm = (series / series.iloc[0] - 1) * 100
+                ax.plot(norm.values, label=name, color=color, linewidth=1.5)
+            ax.axhline(0, color='#555', linewidth=0.8, linestyle='--')
+            ax.legend(fontsize=7, facecolor='#2a2a2a', labelcolor='white', loc='upper left')
+            ax.tick_params(colors='#aaa', labelsize=7)
+            ax.set_ylabel('등락률(%)', color='#aaa', fontsize=7)
+            ax.set_xlabel('최근 1개월', color='#aaa', fontsize=7)
+            for spine in ax.spines.values():
+                spine.set_edgecolor('#444')
+            plt.tight_layout()
+            st.pyplot(fig)
+            plt.close()
+        else:
+            st.caption("데이터 불러오는 중...")
+    except Exception as e:
+        st.caption("주식 데이터 불러오기 실패")
 
     st.divider()
     if st.button("대화 초기화"):
