@@ -3,6 +3,7 @@ import openai
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
+import base64
 
 matplotlib.rcParams['font.family'] = 'Malgun Gothic'
 matplotlib.rcParams['axes.unicode_minus'] = False
@@ -101,23 +102,46 @@ with st.sidebar:
 
     st.divider()
     st.header("📎 파일 업로드")
-    uploaded_file = st.file_uploader("파일을 업로드하면 요약해드려요", type=["txt", "csv", "pdf"])
+    uploaded_file = st.file_uploader(
+        "파일을 업로드하면 분석해드려요",
+        type=["txt", "csv", "png", "jpg", "jpeg", "webp", "gif"]
+    )
     file_content = ""
+    image_b64 = None
+    image_mime = None
 
     if uploaded_file:
-        if uploaded_file.type == "text/plain":
+        ftype = uploaded_file.type
+
+        if ftype == "text/plain":
             file_content = uploaded_file.read().decode("utf-8")
-        elif uploaded_file.type == "text/csv":
+
+        elif ftype == "text/csv":
             df = pd.read_csv(uploaded_file)
             file_content = df.to_string()
             st.dataframe(df)
-        else:
-            st.warning("PDF는 추가 라이브러리가 필요합니다.")
+
+        elif ftype.startswith("image/"):
+            img_bytes = uploaded_file.read()
+            image_b64 = base64.b64encode(img_bytes).decode("utf-8")
+            image_mime = ftype
+            st.image(img_bytes, caption=uploaded_file.name)
 
         if file_content and st.button("요약 요청"):
             st.session_state.messages.append({
                 "role": "user",
                 "content": f"다음 파일 내용을 요약해줘:\n\n{file_content[:3000]}"
+            })
+
+        if image_b64 and st.button("이미지 분석 요청"):
+            st.session_state.messages.append({
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "이 이미지를 수박 전문가 입장에서 분석해줘."},
+                    {"type": "image_url", "image_url": {
+                        "url": f"data:{image_mime};base64,{image_b64}"
+                    }}
+                ]
             })
 
     if st.button("대화 초기화"):
@@ -127,7 +151,16 @@ with st.sidebar:
 # 대화 기록 출력
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
+        if isinstance(msg["content"], list):
+            for block in msg["content"]:
+                if block["type"] == "text":
+                    st.markdown(block["text"])
+                elif block["type"] == "image_url":
+                    url = block["image_url"]["url"]
+                    b64 = url.split(",")[1]
+                    st.image(base64.b64decode(b64))
+        else:
+            st.markdown(msg["content"])
 
 # 사용자 입력
 if prompt := st.chat_input("수박에 대해 무엇이든 물어보세요! 🍉"):
