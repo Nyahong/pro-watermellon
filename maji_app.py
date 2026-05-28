@@ -8,11 +8,14 @@ matplotlib.rcParams['font.family'] = 'Malgun Gothic'
 matplotlib.rcParams['axes.unicode_minus'] = False
 
 # ── 설정 ──────────────────────────────────────────
-API_KEY      = st.secrets["API_KEY"]
-API_ENDPOINT = st.secrets["API_ENDPOINT"]
-MODEL        = "10ai0377-gpt-4o-mini"
+API_KEY     = st.secrets["API_KEY"]
+MODEL       = "10ai0377-gpt-4o-mini"
 
-client = openai.OpenAI(api_key=API_KEY, base_url=API_ENDPOINT)
+client = openai.AzureOpenAI(
+    api_key=API_KEY,
+    azure_endpoint="https://10ai037-openai.openai.azure.com/",
+    api_version="2024-07-18"
+)
 
 SYSTEM_PROMPT = """
 당신은 세계 최고의 수박 전문가 AI입니다. 수박에 관한 모든 것을 알고 있습니다.
