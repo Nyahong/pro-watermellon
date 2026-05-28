@@ -324,7 +324,7 @@ with col1:
         update();
         setInterval(update, 1000);
     </script>
-    """, height=120)
+    """, height=150)
 
 # 날씨 카드
 with col2:
@@ -347,7 +347,7 @@ with col2:
                 바람 {weather['wind']}km/h
             </div>
         </div>
-        """, height=120)
+        """, height=150)
     else:
         st.warning("날씨 정보를 불러올 수 없습니다.")
 
