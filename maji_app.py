@@ -1,6 +1,8 @@
 import streamlit as st
 st.set_page_config(page_title="수박 전문가 AI", page_icon="🍉")
 import streamlit.components.v1 as components
+from streamlit_folium import st_folium
+import folium
 import openai
 import json
 import time
@@ -415,6 +417,77 @@ with col2:
         """, height=150)
     else:
         st.warning("날씨 정보를 불러올 수 없습니다.")
+
+st.divider()
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 추가 기능 패널
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+with st.expander("📊 수박 영양소 분석"):
+    col_n1, col_n2 = st.columns([1, 1])
+    with col_n1:
+        fig, ax = plt.subplots(figsize=(4, 4))
+        fig.patch.set_facecolor('#1a1a1a')
+        labels  = ['수분', '탄수화물', '단백질', '지방', '기타']
+        sizes   = [92.0, 6.0, 0.6, 0.2, 1.2]
+        colors  = ['#64b5f6', '#81c784', '#ffb74d', '#f06292', '#ce93d8']
+        wedges, texts, autotexts = ax.pie(
+            sizes, labels=labels, colors=colors,
+            autopct='%1.1f%%', startangle=90,
+            textprops={'color': 'white', 'fontsize': 10}
+        )
+        for at in autotexts:
+            at.set_color('white')
+        ax.set_title('수박 100g 성분 구성', color='white', fontsize=13, pad=15)
+        st.pyplot(fig)
+        plt.close()
+    with col_n2:
+        st.markdown("""
+        | 영양소 | 함량 (100g) |
+        |--------|------------|
+        | 칼로리 | 30 kcal |
+        | 수분 | 92g |
+        | 탄수화물 | 6g |
+        | 당류 | 5.5g |
+        | 단백질 | 0.6g |
+        | 지방 | 0.2g |
+        | 비타민C | 8.1mg |
+        | 칼륨 | 112mg |
+        | 라이코펜 | 4.5mg |
+        | 시트룰린 | 250mg |
+        """)
+
+with st.expander("🌱 수박 재배 달력"):
+    cal = pd.DataFrame({
+        '월': ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
+        '작업': ['휴식기','씨앗 준비','파종 시작','모종 이식','생육 관리','첫 수확','성수기 🔥','성수기 🔥','후기 수확','정리','토양 관리','계획 수립'],
+        '기온(℃)': ['-','3~8','8~13','13~18','18~25','23~28','25~32','25~32','20~27','14~20','5~12','-'],
+        '포인트': ['❄️','🌱씨앗 구매','🪴 온상 파종','🌿 밭 정식','💧 수분 관리','🍉 착과 확인','🌞 최대 생산','🌞 최대 생산','🍂 마무리','🧹 잔재 처리','🌍 비료 투입','📋 내년 계획']
+    })
+    st.dataframe(cal, hide_index=True, use_container_width=True)
+
+with st.expander("🗺️ 수박 주요 산지 지도"):
+    m = folium.Map(location=[36.5, 127.8], zoom_start=7, tiles='CartoDB dark_matter')
+    regions = [
+        ("충남 논산", 36.19, 127.08, "전국 생산량 1위 · 삼복꿀수박 산지"),
+        ("전북 고창", 35.43, 126.70, "복수박 · 씨 없는 수박으로 유명"),
+        ("경북 영천", 35.97, 128.94, "당도 높은 고품질 수박"),
+        ("충북 음성", 37.00, 127.69, "중부권 최대 수박 산지"),
+        ("강원 홍천", 37.69, 127.88, "고랭지 수박 · 여름 대표 산지"),
+        ("경남 함안", 35.27, 128.41, "조생 수박 · 이른 출하로 유명"),
+    ]
+    for name, lat, lon, desc in regions:
+        folium.CircleMarker(
+            location=[lat, lon], radius=14,
+            color='#ff6b6b', fill=True, fill_color='#ff6b6b', fill_opacity=0.75,
+            popup=folium.Popup(f"<b>🍉 {name}</b><br>{desc}", max_width=220),
+            tooltip=f"🍉 {name}"
+        ).add_to(m)
+        folium.Marker(
+            location=[lat, lon],
+            icon=folium.DivIcon(html=f'<div style="font-size:10px;color:white;font-weight:bold;text-shadow:1px 1px 2px black;">{name}</div>')
+        ).add_to(m)
+    st_folium(m, height=420, use_container_width=True)
 
 st.divider()
 

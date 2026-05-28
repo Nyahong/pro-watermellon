@@ -4,3 +4,5 @@ pandas
 matplotlib
 requests
 yfinance
+folium
+streamlit-folium
